@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'TravelTogether  ',
+      title: 'TravelTogether',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -20,7 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Page de Connexion (Login)
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -62,7 +61,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
                 );
@@ -88,7 +87,6 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-// Page d'Inscription (Sign Up)
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
@@ -154,7 +152,7 @@ class SignUpPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
                 );
@@ -170,7 +168,6 @@ class SignUpPage extends StatelessWidget {
   }
 }
 
-// Page Principale (Après connexion)
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -178,12 +175,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: const Text('TravelTogether'),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -191,22 +185,24 @@ class HomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.flight, size: 80, color: Colors.blue),
-            const SizedBox(height: 10),
-            const Text(
-              "TravelTogether",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AjouterVoyage()),
+                );
+              },
               child: Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
-                  children: const [
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Icon(Icons.travel_explore, size: 40),
                     SizedBox(width: 10),
                     Text(
@@ -220,19 +216,22 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                // Navigation vers la page de consultation des voyages
+              },
               child: Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Row(
-                  children: const [
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Icon(Icons.map, size: 40),
                     SizedBox(width: 10),
                     Text(
-                      "Consulter un voyage",
+                      "Consulter les voyages",
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -244,5 +243,120 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class AjouterVoyage extends StatefulWidget {
+  const AjouterVoyage({super.key});
+
+  @override
+  State<AjouterVoyage> createState() => _AjouterVoyageState();
+}
+
+class _AjouterVoyageState extends State<AjouterVoyage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomController = TextEditingController();
+  final TextEditingController _lieuController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _dateController.text = "${picked.day}/${picked.month}/${picked.year}";
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ajouter un voyage'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nomController,
+                decoration: const InputDecoration(
+                  labelText: 'Nom du voyage',
+                  border: OutlineInputBorder(),
+                  hintText: 'Ex: Vacances à Paris',
+                ),
+                validator: (value) =>
+                    value!.isEmpty ? 'Champ obligatoire' : null,
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _lieuController,
+                decoration: const InputDecoration(
+                  labelText: 'Lieu/Adresse',
+                  border: OutlineInputBorder(),
+                  hintText: 'Ex: Tour Eiffel, Paris',
+                ),
+                validator: (value) =>
+                    value!.isEmpty ? 'Champ obligatoire' : null,
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _dateController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Date',
+                  border: const OutlineInputBorder(),
+                  hintText: 'jj/mm/aaaa',
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.calendar_today),
+                    onPressed: () => _selectDate(context),
+                  ),
+                ),
+                validator: (value) =>
+                    value!.isEmpty ? 'Champ obligatoire' : null,
+              ),
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Traitement des données ici
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Voyage enregistré!')),
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Enregistrer'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    _lieuController.dispose();
+    _dateController.dispose();
+    super.dispose();
   }
 }
