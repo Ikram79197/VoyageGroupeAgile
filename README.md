@@ -1,4 +1,4 @@
-# hello
+# Project de coordination des voyages en groupe
 
 A new Flutter project created with FlutLab - https://flutlab.io
 
