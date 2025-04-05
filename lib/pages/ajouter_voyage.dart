@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import '../services/memory_storage.dart';
+import 'ajouter_depense.dart';
 
 class AjouterVoyage extends StatefulWidget {
   const AjouterVoyage({super.key});
@@ -12,6 +15,7 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
   final TextEditingController _nomController = TextEditingController();
   final TextEditingController _lieuController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final uuid = Uuid(); // Générateur UUID
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -29,10 +33,36 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      // Traitement des données (ex: sauvegarde en mémoire/SQLite)
-      debugPrint('Voyage ajouté: ${_nomController.text}');
-      Navigator.pop(context); // Retour à l'écran précédent
+      // Génère un ID unique
+      String voyageId = uuid.v4();
+
+      // Crée l'objet voyage
+      final voyage = {
+        'id': voyageId,
+        'nom': _nomController.text,
+        'lieu': _lieuController.text,
+        'date': _dateController.text,
+      };
+
+      // Enregistre dans le stockage
+      MemoryStorage().addVoyage(voyage);
+
+      // Navigue vers AjouterDepense
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AjouterDepense(voyageId: voyageId),
+        ),
+      );
     }
+  }
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    _lieuController.dispose();
+    _dateController.dispose();
+    super.dispose();
   }
 
   @override
@@ -50,42 +80,36 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Champ: Nom du voyage
               TextFormField(
                 controller: _nomController,
                 decoration: const InputDecoration(
                   labelText: 'Nom du voyage',
-                  hintText: 'Ex: Vacances à Bali',
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: Vacances à Paris',
                 ),
                 validator: (value) =>
                     value!.isEmpty ? 'Champ obligatoire' : null,
               ),
               const SizedBox(height: 20),
-
-              // Champ: Lieu/Adresse
               TextFormField(
                 controller: _lieuController,
                 decoration: const InputDecoration(
-                  labelText: 'Lieu / Adresse',
-                  hintText: 'Ex: Plage de Kuta',
+                  labelText: 'Lieu/Adresse',
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: Tour Eiffel, Paris',
                 ),
                 validator: (value) =>
                     value!.isEmpty ? 'Champ obligatoire' : null,
               ),
               const SizedBox(height: 20),
-
-              // Champ: Date
               TextFormField(
                 controller: _dateController,
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: 'Date',
-                  hintText: 'jj/mm/aaaa',
                   border: const OutlineInputBorder(),
+                  hintText: 'jj/mm/aaaa',
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.calendar_today),
                     onPressed: () => _selectDate(context),
@@ -95,8 +119,6 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
                     value!.isEmpty ? 'Champ obligatoire' : null,
               ),
               const SizedBox(height: 30),
-
-              // Bouton Valider
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -104,7 +126,7 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Enregistrer'),
+                  child: const Text('Suivant'),
                 ),
               ),
             ],
@@ -112,13 +134,5 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nomController.dispose();
-    _lieuController.dispose();
-    _dateController.dispose();
-    super.dispose();
   }
 }
