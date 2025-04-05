@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/memory_storage.dart';
 import 'ajouter_voyage.dart';
 import 'ajouter_depense.dart';
+import 'home.dart'; // Assurez-vous que ce fichier existe et contient HomePage
 
 class ConsulterVoyage extends StatefulWidget {
   const ConsulterVoyage({super.key});
@@ -17,7 +18,7 @@ class _ConsulterVoyageState extends State<ConsulterVoyage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes Voyages'),
+        title: const Text('Les Voyages disponibles'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -26,44 +27,82 @@ class _ConsulterVoyageState extends State<ConsulterVoyage> {
                 context,
                 MaterialPageRoute(builder: (context) => const AjouterVoyage()),
               );
-              setState(() {}); // Rafraîchir la liste après retour
+              setState(() {}); // Rafraîchir la liste
             },
           ),
         ],
       ),
-      body: voyages.isEmpty
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.flight, size: 50, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'Aucun voyage enregistré',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
+      body: Column(
+        children: [
+          Expanded(
+            child: voyages.isEmpty
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.flight, size: 50, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
+                          'Aucun voyage enregistré',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Appuyez sur + pour ajouter un voyage',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      setState(() {});
+                      return;
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: voyages.length,
+                      itemBuilder: (context, index) {
+                        final voyage = voyages[index];
+                        return _buildVoyageCard(voyage, context);
+                      },
+                    ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Appuyez sur + pour ajouter un voyage',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: () async {
-                setState(() {});
-                return;
-              },
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: voyages.length,
-                itemBuilder: (context, index) {
-                  final voyage = voyages[index];
-                  return _buildVoyageCard(voyage, context);
+          ),
+
+          //  Bouton Accueil en bas, centré avec texte sous l'icône
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: 100,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                ),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomePage()),
+                    (route) => false,
+                  );
                 },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.home, size: 25), // Icône de la maison
+
+                    Text('Accueil',
+                        style: TextStyle(fontSize: 14)), // Texte "Accueil"
+                  ],
+                ),
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -89,6 +128,7 @@ class _ConsulterVoyageState extends State<ConsulterVoyage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Nom + Date
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -101,26 +141,24 @@ class _ConsulterVoyageState extends State<ConsulterVoyage> {
                   ),
                   Text(
                     voyage['date'],
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
+              // Lieu
               Row(
                 children: [
                   const Icon(Icons.location_on, size: 16, color: Colors.blue),
                   const SizedBox(width: 4),
                   Text(
                     voyage['lieu'],
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                    ),
+                    style: TextStyle(color: Colors.grey[700]),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
+              // Lien vers les dépenses
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/memory_storage.dart';
-import 'consulter_voyage.dart'; // ← à ajouter
+import 'consulter_voyage.dart';
 
 class AjouterDepense extends StatefulWidget {
   final String voyageId;
@@ -16,13 +16,14 @@ class _AjouterDepenseState extends State<AjouterDepense> {
   final TextEditingController _montantController = TextEditingController();
   String _categorie = 'Hôtel';
 
-  final List<String> _categories = [
-    'Hôtel',
-    'Vol',
-    'Restaurant',
-    'Transport',
-    'Activités',
-    'Autres'
+  // Catégories avec leurs icônes correspondantes
+  final List<Map<String, dynamic>> _categories = [
+    {'name': 'Hôtel', 'icon': Icons.hotel},
+    {'name': 'Vol', 'icon': Icons.flight},
+    {'name': 'Restaurant', 'icon': Icons.restaurant},
+    {'name': 'Transport', 'icon': Icons.directions_car},
+    {'name': 'Activités', 'icon': Icons.attractions},
+    {'name': 'Autres', 'icon': Icons.more_horiz},
   ];
 
   void _enregistrerDepense() {
@@ -32,11 +33,13 @@ class _AjouterDepenseState extends State<AjouterDepense> {
         'montant': double.parse(_montantController.text),
         'categorie': _categorie,
         'date': DateTime.now().toString(),
+        'icon': _categories
+            .firstWhere((cat) => cat['name'] == _categorie)['icon']
+            .codePoint,
       };
 
       MemoryStorage().addDepense(widget.voyageId, nouvelleDepense);
 
-      // Redirection vers la liste des voyages après enregistrement
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const ConsulterVoyage()),
@@ -69,24 +72,39 @@ class _AjouterDepenseState extends State<AjouterDepense> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Nom de la dépense',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              // Section Nom de la dépense
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Nom de la dépense',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nomController,
                 decoration: InputDecoration(
                   hintText: 'Ex: Dîner au restaurant',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  prefixIcon: const Icon(Icons.edit),
+                  prefixIcon: const Icon(Icons.edit, color: Colors.blue),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 ),
                 validator: (value) =>
                     value!.isEmpty ? 'Ce champ est requis' : null,
               ),
               const SizedBox(height: 20),
-              const Text('Montant',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+              // Section Montant
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Montant',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _montantController,
@@ -94,9 +112,13 @@ class _AjouterDepenseState extends State<AjouterDepense> {
                 decoration: InputDecoration(
                   hintText: '0.00',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                  prefix: const Text('\$ '),
+                  prefix: const Text('\$ ', style: TextStyle(fontSize: 16)),
+                  prefixIcon:
+                      const Icon(Icons.attach_money, color: Colors.blue),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) return 'Montant requis';
@@ -105,49 +127,83 @@ class _AjouterDepenseState extends State<AjouterDepense> {
                 },
               ),
               const SizedBox(height: 20),
-              const Text('Catégorie',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+              // Section Catégorie
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Text(
+                  'Catégorie',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
               const SizedBox(height: 8),
               GridView.count(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 3,
-                childAspectRatio: 2.5,
+                childAspectRatio: 1.5,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
                 children: _categories.map((categorie) {
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _categorie == categorie
-                          ? Colors.blue
-                          : Colors.grey[200],
-                      foregroundColor:
-                          _categorie == categorie ? Colors.white : Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {
+                  return GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _categorie = categorie;
+                        _categorie = categorie['name'];
                       });
                     },
-                    child: Text(categorie),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: _categorie == categorie['name']
+                            ? Colors.blue[100]
+                            : Colors.grey[200],
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _categorie == categorie['name']
+                              ? Colors.blue
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(categorie['icon'],
+                              color: _categorie == categorie['name']
+                                  ? Colors.blue
+                                  : Colors.grey[700]),
+                          const SizedBox(height: 5),
+                          Text(
+                            categorie['name'],
+                            style: TextStyle(
+                              color: _categorie == categorie['name']
+                                  ? Colors.blue
+                                  : Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
               const SizedBox(height: 30),
+
+              // Bouton Valider
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _enregistrerDepense,
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text('Ajouter la dépense',
-                      style: TextStyle(fontSize: 18)),
+                  child: const Text(
+                    'Ajouter la dépense',
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
                 ),
               ),
             ],

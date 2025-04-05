@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ajouter_voyage.dart';
-// Tu peux aussi importer consulter_voyages.dart si tu la crées
+import 'consulter_voyage.dart'; // Import ajouté
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,12 +20,14 @@ class HomePage extends StatelessWidget {
           children: [
             const Icon(Icons.flight, size: 80, color: Colors.blue),
             const SizedBox(height: 20),
+            // Bouton "Créer un voyage"
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const AjouterVoyage()),
+                    builder: (context) => const AjouterVoyage(),
+                  ),
                 );
               },
               child: Container(
@@ -41,17 +43,25 @@ class HomePage extends StatelessWidget {
                     SizedBox(width: 10),
                     Text(
                       "Créer un voyage",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 20),
+            // Bouton "Consulter les voyages"
             GestureDetector(
               onTap: () {
-                // À remplacer par : Navigator.push vers consulter_voyages
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ConsulterVoyage(),
+                  ),
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(15),
@@ -66,8 +76,10 @@ class HomePage extends StatelessWidget {
                     SizedBox(width: 10),
                     Text(
                       "Consulter les voyages",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

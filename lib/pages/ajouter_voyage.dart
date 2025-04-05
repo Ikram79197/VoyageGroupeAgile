@@ -118,7 +118,9 @@ class _AjouterVoyageState extends State<AjouterVoyage> {
                 validator: (value) =>
                     value!.isEmpty ? 'Champ obligatoire' : null,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
+              const SizedBox(height: 50),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
