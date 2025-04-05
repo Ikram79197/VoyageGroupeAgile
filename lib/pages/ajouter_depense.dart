@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/memory_storage.dart';
+import 'consulter_voyage.dart'; // ← à ajouter
 
 class AjouterDepense extends StatefulWidget {
   final String voyageId;
@@ -13,16 +14,43 @@ class _AjouterDepenseState extends State<AjouterDepense> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nomController = TextEditingController();
   final TextEditingController _montantController = TextEditingController();
-  String _categorie = 'Hôtel'; // Catégorie par défaut
+  String _categorie = 'Hôtel';
 
-  // Liste des catégories disponibles
   final List<String> _categories = [
     'Hôtel',
+    'Vol',
+    'Restaurant',
     'Transport',
-    'Nourriture',
     'Activités',
     'Autres'
   ];
+
+  void _enregistrerDepense() {
+    if (_formKey.currentState!.validate()) {
+      final nouvelleDepense = {
+        'nom': _nomController.text,
+        'montant': double.parse(_montantController.text),
+        'categorie': _categorie,
+        'date': DateTime.now().toString(),
+      };
+
+      MemoryStorage().addDepense(widget.voyageId, nouvelleDepense);
+
+      // Redirection vers la liste des voyages après enregistrement
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const ConsulterVoyage()),
+        (route) => false,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nomController.dispose();
+    _montantController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +69,6 @@ class _AjouterDepenseState extends State<AjouterDepense> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Section: Nom de la dépense
               const Text('Nom de la dépense',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -58,8 +85,6 @@ class _AjouterDepenseState extends State<AjouterDepense> {
                     value!.isEmpty ? 'Ce champ est requis' : null,
               ),
               const SizedBox(height: 20),
-
-              // Section: Montant
               const Text('Montant',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -80,8 +105,6 @@ class _AjouterDepenseState extends State<AjouterDepense> {
                 },
               ),
               const SizedBox(height: 20),
-
-              // Section: Catégories
               const Text('Catégorie',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -113,8 +136,6 @@ class _AjouterDepenseState extends State<AjouterDepense> {
                 }).toList(),
               ),
               const SizedBox(height: 30),
-
-              // Bouton Valider
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -134,34 +155,5 @@ class _AjouterDepenseState extends State<AjouterDepense> {
         ),
       ),
     );
-  }
-
-  void _enregistrerDepense() {
-    if (_formKey.currentState!.validate()) {
-      final nouvelleDepense = {
-        'nom': _nomController.text,
-        'montant': double.parse(_montantController.text),
-        'categorie': _categorie,
-        'date': DateTime.now().toString(),
-      };
-
-      // Enregistrement dans MemoryStorage
-      MemoryStorage().addDepense(widget.voyageId, nouvelleDepense);
-
-      // Feedback utilisateur
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dépense enregistrée avec succès!')),
-      );
-
-      // Retour à la page précédente
-      Navigator.pop(context);
-    }
-  }
-
-  @override
-  void dispose() {
-    _nomController.dispose();
-    _montantController.dispose();
-    super.dispose();
   }
 }
