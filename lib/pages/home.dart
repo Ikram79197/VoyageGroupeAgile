@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ajouter_voyage.dart';
-import 'consulter_voyage.dart'; // Import ajouté
+import 'consulter_voyage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,7 +11,10 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('TravelTogether'),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
